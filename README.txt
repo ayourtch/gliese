@@ -1,5 +1,17 @@
 This is a small framework for easily writing tiny and fast web apps in Lua. 
 
+The FastCGI configuration for lighttpd:
+
+#----------------
+server.modules   += ( "mod_fastcgi" )
+#
+fastcgi.server = ( ".lua" =>
+    (( "socket" => "/tmp/lua.socket",
+       "bin-path" => "/usr/local/bin/lwp.magnet",
+       "max-procs" => 4 ))
+)
+#------------------
+
 Here's an example of use:
 
 require "lib/web"

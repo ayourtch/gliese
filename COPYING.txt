@@ -20,7 +20,7 @@ CGILua is free software and uses the same license as Lua 5.1.
 
 ====== FastCGI wrapper:
 
-... pending reply from Jan ...
+Clarification from Jan Kneschke: the wrapper is MIT/X11 license (same as Lua 5.1)
 
 ====== redis-lua:
 Copyright (c) 2009-2010
