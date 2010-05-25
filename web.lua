@@ -749,8 +749,12 @@ end
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 
+
 function include(fname, page, req, resp, params)
-  local fh = assert (io.open("./" .. req.script_name .. ".d/" .. fname))
+  local fh
+  -- [deprecated]
+  -- fh = assert (io.open("./" .. req.script_name .. ".d/" .. fname))
+  fh = assert (io.open("./templates/" .. fname ))
   local src = fh:read("*a")
   fh:close()
   if src:sub(1,3) == BOM then src = src:sub(4) end
