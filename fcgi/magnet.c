@@ -76,21 +76,25 @@ static int magnet_read(lua_State *L) {
   return 1;
 }
 
+static int do_chdir(const char *fn) {
+  char buf[1000];
+  int flen = strlen(fn);
+  int cdres = -1;
+  strncpy(buf, fn, sizeof(buf)-1);
+  while((flen) > 0 && buf[flen] != '/') flen--;
+  if (flen > 0) {
+    buf[flen] = 0;
+    cdres = chdir(buf);
+  }
+  return cdres;
+}
+
 static int magnet_cache_script(lua_State *L, const char *fn, time_t mtime) {
         /* 
          * if func = loadfile("<script>") then return -1
          *
          * magnet.cache["<script>"].script = func
          */
-        char buf[1000];
-        int flen = strlen(fn);
-        int cdres = 0;
-        strncpy(buf, fn, sizeof(buf)-1);
-        while((flen) > 0 && buf[flen] != '/') flen--;
-        if (flen > 0) {
-          buf[flen] = 0;
-          cdres = chdir(buf);
-        }
         
         if (luaL_loadfile(L, fn)) {
                 fprintf(stderr, "%s\n", lua_tostring(L, -1));
@@ -145,6 +149,7 @@ static int magnet_get_script(lua_State *L, const char *fn) {
         assert(lua_istable(L, -1));
 
         lua_getfield(L, -1, fn);
+	do_chdir(fn);
 
         if (!lua_istable(L, -1)) {
                 lua_pop(L, 3); /* pop the nil */
