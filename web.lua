@@ -31,31 +31,50 @@ debugging = false
 function redirect_request_to(uri)
   return function(page, req, resp, params)
     req.redirect_to(uri)
-    -- print("Redirecting to uri:", uri)
+    print("Redirecting to uri:", uri)
     -- page:redirect(req.script_name .. uri)
   end
 end
 
 
-function begin_handling()
+function begin_handling(mreq)
   local page = page_new()
   local request = {}
   local response = {}
-  if not arg then
-    request.method = os.getenv("REQUEST_METHOD")
-    request.url = os.getenv("PATH_INFO")
-    request.query_string = os.getenv("QUERY_STRING")
-    request.script_name = os.getenv("SCRIPT_NAME")
-    request.fullscripturl = "http://" .. os.getenv("SERVER_NAME") .. os.getenv("SCRIPT_NAME")
+  if mreq then
+    local apath = mreq.headers.PATH
+    local apatt = mreq.headers.PATTERN
+    local asub = string.sub(apath, 1, #apatt)
+    print("apath-apatt-asub:", apath, apatt, asub)
+    request.method = mreq.headers.METHOD
+    if asub == apatt then
+      request.url = string.sub(apath, 1+#apatt)
+      print("Request.url set to:", request.url)
+    else
+      print("Reset url to default", apatt, asub)
+      request.url = '/' -- mreq.headers.PATH
+    end
+    request.query_string = mreq.headers.QUERY
+    request.script_name = mreq.headers.PATTERN
+    request.fullscripturl = "http://" ..
+				mreq.headers.host .. mreq.headers.PATTERN
   else
-    -- CLI testing
-    print("CLI use")
-    request.testing = true
-    request.method = arg[1] or "GET"
-    request.url = arg[2] or "/default_url_please_supply_correct" .. os.date("%s") -- "/"
-    request.query_string = arg[3] or "test=1"
-    request.script_name = arg[0]
-    request.fullscripturl = "http://" .. "myserver" .. "/testscript.lua"
+    if not arg then
+      request.method = os.getenv("REQUEST_METHOD")
+      request.url = os.getenv("PATH_INFO")
+      request.query_string = os.getenv("QUERY_STRING")
+      request.script_name = os.getenv("SCRIPT_NAME")
+      request.fullscripturl = "http://" .. os.getenv("SERVER_NAME") .. os.getenv("SCRIPT_NAME")
+    else
+      -- CLI testing
+      print("CLI use")
+      request.testing = true
+      request.method = arg[1] or "GET"
+      request.url = arg[2] or "/default_url_please_supply_correct" .. os.date("%s") -- "/"
+      request.query_string = arg[3] or "test=1"
+      request.script_name = arg[0]
+      request.fullscripturl = "http://" .. "myserver" .. "/testscript.lua"
+    end
   end
 
   request.redirect_to = function(uri)
@@ -72,10 +91,13 @@ function begin_handling()
 end
 
 function end_handling(page)
-  if not page.no_default_response then
-    print(page:full_response())
-  end
   collectgarbage("step")
+  if not page.no_default_response then
+    local res = page:full_response()
+    return page:zmq_response() 
+    -- print(res)
+  end
+  -- return(res)
   -- print("200 HTTP/1.0 OK\r\nContent-length: 10\r\n\r\n0123456789\r\n")
 end
 
@@ -373,7 +395,17 @@ function page_new()
       pg.header["Set-Cookie"] = build_cookie(name, value, options)
     end,
 
-    
+    zmq_response = function(pg)
+      local body, code, status, headers
+      body = pg.body.result()  
+      code = 200
+      status = "OK"
+      if(pg.header["Status"]) then
+        code = pg.header["Status"]
+      end
+      headers = pg.header
+      return body, code, status, headers
+    end, 
 
     full_response = function(pg) 
       local o = ""
@@ -507,7 +539,7 @@ function request_method(meth, x)
       if debugging then print("Method of ", req.method, meth) end
       if req.method == meth then
         local url_match = pack(string.match(req.url, x[1]))
-        -- page:write("trying to match:" .. req.url .. " against " .. x[1] .. " with result " .. tostring(#url_match) .. "<br>")
+         -- page:write("trying to match:" .. req.url .. " against " .. x[1] .. " with result " .. tostring(#url_match) .. "<br>")
         if #url_match > 0 then
           local local_params = {}
           for i, v in ipairs(url_match) do
@@ -573,8 +605,8 @@ function get_routes()
   return matcher(nil, nil, "routes")
 end
 
-function routing(rules)
-  local page, request, response = begin_handling()
+function routing(rules, mreq)
+  local page, request, response = begin_handling(mreq)
   local parent_env = getfenv(2)
   print = rules.print
   read = rules.read
@@ -620,7 +652,7 @@ function routing(rules)
     end
   end
   matcher(page, request, response, arguments) 
-  end_handling(page)
+  return end_handling(page)
 end
 
 
@@ -670,6 +702,7 @@ function lisp_like_id(dirty_params, pname, clean_params)
 end
 
 function redirect_to_root(page, req, resp, params)
+  print("Redirecting to root")
   req.redirect_to("/")
 end
 
