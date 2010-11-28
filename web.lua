@@ -1,4 +1,3 @@
--- module("web", package.seeall)
 _G = _G
 local os = _G.os
 local ipairs, pairs, table, string, collectgarbage = ipairs, pairs, table, string, collectgarbage
@@ -16,14 +15,16 @@ local strfind = string.find
 local io = io
 local assert = assert
 local loadstring = loadstring
+local mongrel2 = require 'mongrel2'
 
 local parent_env = getfenv(1)
 module("web")
 local this_env = getfenv(1)
 local exports = { "get", "post", "routing", "redirect_request_to",
                   "mandatory", "optional", "numeric", "lisp_like_id",
-		  "redirect_to_root", "render", "p", "include", "escape"
+		  "redirect_to_root", "render", "p", "include", "escape", "mongrel2connect"
                  }
+
 
 debugging = false
 -- debugging = true 
@@ -45,13 +46,10 @@ function begin_handling(mreq)
     local apath = mreq.headers.PATH
     local apatt = mreq.headers.PATTERN
     local asub = string.sub(apath, 1, #apatt)
-    print("apath-apatt-asub:", apath, apatt, asub)
     request.method = mreq.headers.METHOD
     if asub == apatt then
       request.url = string.sub(apath, 1+#apatt)
-      print("Request.url set to:", request.url)
     else
-      print("Reset url to default", apatt, asub)
       request.url = '/' -- mreq.headers.PATH
     end
     request.query_string = mreq.headers.QUERY
@@ -607,10 +605,10 @@ end
 
 function routing(rules, mreq)
   local page, request, response = begin_handling(mreq)
-  local parent_env = getfenv(2)
+  --XX local parent_env = getfenv(2)
   print = rules.print
   read = rules.read
-  print, read = parent_env.print, parent_env.read
+  --XX print, read = parent_env.print, parent_env.read
   if debugging then
     for i, r in ipairs(rules) do print(i, r(nil, nil)) end
   end
@@ -798,7 +796,27 @@ function render(fname, page, req, resp, params)
 end
 
 
+function mongrel2connect(rules)
+  local io_threads = 1
+  local ctx = mongrel2.new(io_threads)
 
+  -- Creates a new connection object using the mongrel2 context
+  local conn = ctx:new_connection(rules.sender_id, rules.sub_addr, rules.pub_addr)
+
+  while true do
+    local req = conn:recv()
+
+    if req:is_disconnect() then
+        -- print 'Disconnected'
+    else
+        local response = ""
+        -- response = response_string:format(req.sender, req.conn_id, req.path, dump(req.headers), req.body)
+        conn:reply_http(req, routing(rules, req))
+    end
+  end
+
+  ctx:term()
+end
 
 for i, v in ipairs(exports) do
   parent_env[v] = this_env[v]
