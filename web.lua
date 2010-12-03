@@ -47,11 +47,17 @@ function begin_handling(mreq)
     local apatt = mreq.headers.PATTERN
     local asub = string.sub(apath, 1, #apatt)
     request.method = mreq.headers.METHOD
-    if asub == apatt then
+    if asub == apatt and not (apath == '/') then
       request.url = string.sub(apath, 1+#apatt)
     else
       request.url = '/' -- mreq.headers.PATH
     end
+
+    if debugging then
+      print("apath:", apath, " apatt:", apatt, " asub:", asub, " url:", 
+            request.url)
+    end
+    
     request.query_string = mreq.headers.QUERY
     request.script_name = mreq.headers.PATTERN
     request.fullscripturl = "http://" ..
@@ -534,10 +540,12 @@ function request_method(meth, x)
   return function(page, req, resp, params)
     -- logprint("page:" , page, req, resp, params)
     if req then
-      if debugging then print("Method of ", req.method, meth) end
+      -- if debugging then print("Method of ", req.method, meth) end
       if req.method == meth then
         local url_match = pack(string.match(req.url, x[1]))
-         -- page:write("trying to match:" .. req.url .. " against " .. x[1] .. " with result " .. tostring(#url_match) .. "<br>")
+        if debugging then
+          print("trying to match:" .. req.url .. " against " .. x[1] .. " with result " .. tostring(#url_match) .. "<br>")
+        end
         if #url_match > 0 then
           local local_params = {}
           for i, v in ipairs(url_match) do
