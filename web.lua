@@ -47,7 +47,7 @@ function begin_handling(mreq)
     local apatt = mreq.headers.PATTERN
     local asub = string.sub(apath, 1, #apatt)
     request.method = mreq.headers.METHOD
-    if asub == apatt and not (apath == '/') then
+    if asub == apatt and not (string.sub(apath, #apath) == '/') then
       request.url = string.sub(apath, 1+#apatt)
     else
       request.url = '/' -- mreq.headers.PATH
