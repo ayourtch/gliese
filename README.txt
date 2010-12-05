@@ -1,85 +1,50 @@
-This is a small framework for easily writing tiny and fast web apps in Lua. 
+This is a small framework for easily writing tiny 
+and fast web apps in Lua for Mongrel2.
 
-The FastCGI configuration for lighttpd:
+(There are still some remnants of FCGI but I focus 
+on working as a zmq backend for mongrel2)
 
-#----------------
-server.modules   += ( "mod_fastcgi" )
-#
-fastcgi.server = ( ".lua" =>
-    (( "socket" => "/tmp/lua.socket",
-       "bin-path" => "/usr/local/bin/lwp.magnet",
-       "max-procs" => 4 ))
-)
-#------------------
+This code is in alpha stage - lots of things may change.
 
-Here's an example of use:
+Don't use it in production.
 
-require "lib/web"
-require "lib/redis"
+An example client:
+-----------------
+require 'gliese/web'
+require 'gliese/redis'
 
--- ...
+function default_page(page, req, resp, params)
+  -- this makes ab happy for microbenchmarking
+  page.header["Connection"] = "Keep-Alive"
 
-
-function report_page(page, req, resp, params)
-  local r = params.r
-  local hash = sha1(r)
-  local v4_count = redis:get(hash .. ":0")
-  local prev_count = v4_count
-  page.data = {}
-  page.ref = r
-  if v4_count then
-    for i=1,4 do
-      local v = redis:get(hash .. ":" .. tostring(i)) or 0
-      page.data[i] = (prev_count - v)
-      prev_count = v
-    end
-    page.data[5] = prev_count
-  else
-    page:redirect(script)
-  end
+  page:write("<h1>This is a test!</h1>")
+  page:write("param:", params["test"])
 end
 
-function report_raw_page(page, req, resp, params)
-  local r = params.r
-  local hash = sha1(r)
-  for i=0,4 do
-    local v = redis:get(hash .. ":" .. tostring(i)) or 0
-    page:write("<li>" .. v)
-  end
+function foo_page(page, req, resp, params)
+  page:write("<h1>This is a foo test page!</h1>")
+  page:write("param:", params["test"])
 end
 
--- ...
 
--- restore connection to redis if needed
-if not _G['redis'] or not pcall(function() _G['redis']:get('*connect-test*') end) then
-  _G['redis'] = Redis.connect('127.0.0.1', 6379)
-end
-redis = _G['redis']
+mongrel2connect {
+  sender_id = '558c92aa-1644-4e24-a524-39baad0f8e78',
+  sub_addr = 'tcp://127.0.0.1:8989',
+  pub_addr = 'tcp://127.0.0.1:8988',
 
--- routing
-
-routing {
   print = print, read = read,
+
+  -- Routing 
+
   get { "/", default_page, params = {
        test = { optional },
      }
   },
-  post { "/", default_page },
-  get { "/counter.gif", counter_page },
-  get { "/report", "report_page", params = {
-      r = { mandatory },
-    },
+  get { "/foo", foo_page, params = {
+       test = { mandatory },
+     }
   },
-  get { "/report_raw", report_raw_page, params = {
-      r = { mandatory },
-    },
-  },
-  get { "/([0-9a-f]+)", counter_next_page, params = {
-      s = { mandatory },
-      r = { mandatory },
-      path_capture_1 = { mandatory },
-    },
-  },
+  -- Anything else just redirect to root
   get { ".*", redirect_request_to("/") },
 }
 
