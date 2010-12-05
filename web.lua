@@ -537,7 +537,7 @@ end
 function request_method(meth, x)
   -- ease on the eye, the matches are always "whole-string"
   x[1] = "^" .. x[1] .. "$"
-  return function(page, req, resp, params)
+  return function(page, req, resp, params, predicate)
     -- logprint("page:" , page, req, resp, params)
     if req then
       -- if debugging then print("Method of ", req.method, meth) end
@@ -556,6 +556,12 @@ function request_method(meth, x)
           local res, errors = check_params(params, local_params, x.params or {} ) 
           if debugging then print("Param check:", res, errors) end
           if res then
+            if predicate then
+              if not predicate(page, req, resp, params) then
+                if debugging then print("Precall failed, continue checking") end
+                return "next"
+              end
+            end
             local funcname = x[2]
             if type(funcname) == "string" then
 	      --- magic - to get the env of the "main" script
@@ -628,7 +634,7 @@ function routing(rules, mreq)
 	-- profiling
 	steps = steps + 1  
 	-- note that we are calling the function that was returned by the request_method function
-	local res = func(page, req, resp, params) 
+	local res = func(page, req, resp, params, rules.predicate) 
         -- page:write("<br>".. req.url .. tostring(res))
 	if res == nil then
           if debugging then print("Found: ", i) end
