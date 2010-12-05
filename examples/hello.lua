@@ -5,10 +5,9 @@ local redis = nil
 
 function before_any_page(page, req, resp, params)
   -- restore connection to redis if needed
-  if not _G['redis'] or not pcall(function() _G['redis']:get('*connect-test*') end) then
-    _G['redis'] = Redis.connect('127.0.0.1', 6379)
+  if redis or not pcall(function() redis:get('*connect-test*') end) then
+    redis = Redis.connect('127.0.0.1', 6379)
   end
-  redis = _G['redis']
   return true
 end
 
