@@ -96,7 +96,7 @@ function begin_handling(mreq)
     page:redirect(request.script_name .. uri)
   end
   page.url_to = function(page, path) 
-    return(request.script_name .. path)
+    return(request.fullscripturl .. path)
   end
   page.link_to = function(page, resource, text)
     return '<a href="' .. request.script_name .. resource .. '">' .. text .. '</a>'
