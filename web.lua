@@ -811,7 +811,11 @@ function include(fname, page, req, resp, params)
   fh:close()
   if src:sub(1,3) == BOM then src = src:sub(4) end
   local func = compile(src, fname)
-  return func()(page, req, resp, params)
+  if func then
+    return func()(page, req, resp, params)
+  else
+    return nil
+  end
 end
 
 function render(fname, page, req, resp, params)
