@@ -67,6 +67,7 @@ function begin_handling(mreq)
             request.url)
     end
     
+    request.body = mreq.body
     request.query_string = mreq.headers.QUERY
     request.script_name = mreq.headers.PATTERN
     request.fullscripturl = "http://" ..
@@ -668,7 +669,7 @@ function routing(rules, mreq)
   elseif request.method == "POST" then
     parsequery(request.query_string, arguments)
     if not request.testing then
-      parsequery(read(1000000), arguments)
+      parsequery(request.body, arguments)
     end
   end
   matcher(page, request, response, arguments) 
