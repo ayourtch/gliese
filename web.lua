@@ -31,8 +31,10 @@ debugging = false
 
 function redirect_request_to(uri)
   return function(page, req, resp, params)
+    if debugging then 
+      print("Redirecting to uri:", uri)
+    end
     req.redirect_to(uri)
-    print("Redirecting to uri:", uri)
     -- page:redirect(req.script_name .. uri)
   end
 end
