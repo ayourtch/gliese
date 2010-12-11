@@ -574,8 +574,7 @@ function request_method(meth, x)
             local funcname = x[2]
             if type(funcname) == "string" then
 	      --- magic - to get the env of the "main" script
-              local env = getfenv(4)
-	      local func = env[funcname]
+	      local func = parent_env[funcname]
 	      page._.controller = funcname
               local res2 = func(page, req, resp, local_params)
               if page._.controller and not page.rendered then
@@ -804,7 +803,8 @@ end
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 
 function include(fname, page, req, resp, params)
-  local fh = assert (io.open("./" .. req.script_name .. ".d/" .. fname))
+  local argv=parent_env['arg']
+  local fh = assert (io.open("./" .. argv[0] .. ".d/" .. fname))
   local src = fh:read("*a")
   fh:close()
   if src:sub(1,3) == BOM then src = src:sub(4) end
