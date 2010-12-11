@@ -580,7 +580,11 @@ function request_method(meth, x)
 	      page._.controller = funcname
               local res2 = func(page, req, resp, local_params)
               if page._.controller and not page.rendered then
-                render(page._.controller .. ".html", page, req, resp, local_params)
+	        if not page._.view then
+                  page._.view = page._.controller
+                end
+                	
+                render(page._.view .. ".html", page, req, resp, local_params)
               end
               return res2
             elseif type(funcname) == "function" then
