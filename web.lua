@@ -47,10 +47,19 @@ function begin_handling(mreq)
     local apatt = mreq.headers.PATTERN
     local asub = string.sub(apath, 1, #apatt)
     request.method = mreq.headers.METHOD
+    # FIXME: this needs to be better than this
     if asub == apatt and not (string.sub(apath, #apath) == '/') then
-      request.url = string.sub(apath, 1+#apatt)
+      if apatt == '/' then
+        request.url = apath
+      else
+        request.url = string.sub(apath, 1+#apatt)
+      end
     else
-      request.url = '/' -- mreq.headers.PATH
+      if apatt == '/' then
+        request.url = apath
+      else
+        request.url = '/' -- mreq.headers.PATH
+      end
     end
 
     if debugging then
