@@ -2,10 +2,6 @@ A big chunk of this library is taken from CGILua:
 
 http://keplerproject.github.com/cgilua/
 
-The FastCGI wrapper is a slightly tweaked Jan Kneschke's for lighttpd:
-
-http://jan.kneschke.de/projects/lua/
-
 The Redis client is Daniele Alessandri's:
 
 http://github.com/nrk/redis-lua
