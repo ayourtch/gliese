@@ -1,0 +1,4 @@
+#!/bin/sh
+m2sh load
+m2sh start --name test
+

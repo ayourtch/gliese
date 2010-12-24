@@ -1,0 +1,4 @@
+This is a 'batteries included' dummy dynamic site.
+
+Execute ./run-all-in-screen in order to get everything running
+then connect to http://yourhost:6767/lua1 to get the counter
