@@ -1,0 +1,75 @@
+#!/bin/sh
+
+# Supermagical script to install all the needed dependencies
+# for mongrel2 and all the needed lua libs
+
+sudo apt-get install build-essential git-core lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
+
+mkdir dist
+cd dist
+
+# zeromq
+wget http://download.zeromq.org/zeromq-2.0.10.tar.gz
+tar xzvf zeromq-2.0.10.tar.gz
+cd zeromq-2.0.10/
+./configure
+make
+sudo make install
+sudo ldconfig
+cd ..
+
+# redis
+wget http://redis.googlecode.com/files/redis-2.0.4.tar.gz
+tar xzvf redis-2.0.4.tar.gz
+cd redis-2.0.4/
+make
+sudo make install
+cd ..
+
+# fossil
+FOSSIL=fossil-src-20101221135605
+wget -O fossil.tgz http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
+tar xzvf ${FOSSIL}.tar.gz
+cd ${FOSSIL}
+make && sudo cp fossil /usr/local/bin/
+
+# mongrel2
+fossil clone http://mongrel2.org:44445 mongrel2.fossil
+rm -rf mongrel2-git
+mkdir mongrel2-git
+cd mongrel2-git
+git init
+fossil export --git ../mongrel2.fossil | git fast-import
+git checkout trunk
+make
+sudo make install
+
+# lua stuff
+
+mkdir lua
+cd lua
+
+
+git clone git://github.com/harningt/luajson.git
+cd luajson
+make
+sudo make install
+cd ..
+
+git clone git://github.com/iamaleksey/lua-zmq.git
+cd lua-zmq
+make
+sudo make install
+cd ..
+
+git clone git://github.com/jsimmons/mongrel2-lua.git
+cd mongrel2-lua
+sudo make
+cd ..
+
+# git clone git@github.com:ayourtch/gliese.git
+git clone git://github.com/ayourtch/gliese.git
+
+cd ..
+# now in dist
+

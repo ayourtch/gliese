@@ -1,0 +1,2 @@
+The install script should allow to install mongrel2 + lua dependencies
+on any clean debian-derived system
