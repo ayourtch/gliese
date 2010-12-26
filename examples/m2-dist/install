@@ -28,7 +28,7 @@ cd ..
 
 # fossil
 FOSSIL=fossil-src-20101221135605
-wget -O fossil.tgz http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
+wget http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
 tar xzvf ${FOSSIL}.tar.gz
 cd ${FOSSIL}
 make && sudo cp fossil /usr/local/bin/
