@@ -32,6 +32,7 @@ wget http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
 tar xzvf ${FOSSIL}.tar.gz
 cd ${FOSSIL}
 make && sudo cp fossil /usr/local/bin/
+cd ..
 
 # mongrel2
 fossil clone http://mongrel2.org:44445 mongrel2.fossil
@@ -43,6 +44,7 @@ fossil export --git ../mongrel2.fossil | git fast-import
 git checkout trunk
 make
 sudo make install
+cd ..
 
 # lua stuff
 
