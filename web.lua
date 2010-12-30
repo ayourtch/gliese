@@ -71,6 +71,7 @@ function begin_handling(mreq)
     
     request.body = mreq.body
     request.remote_addr = mreq.headers['x-forwarded-for']
+    request.referer = mreq.headers['referer']
     request.query_string = mreq.headers.QUERY
     request.script_name = mreq.headers.PATTERN
     request.fullscripturl = "http://" ..
