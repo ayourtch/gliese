@@ -22,7 +22,7 @@ module("web")
 local this_env = getfenv(1)
 local exports = { "get", "post", "routing", "redirect_request_to",
                   "mandatory", "optional", "numeric", "lisp_like_id",
-		  "redirect_to_root", "render", "p", "include", "escape", "mongrel2connect"
+		  "redirect_to_root", "render_verbatim", "render", "p", "include", "escape", "mongrel2connect"
                  }
 
 
@@ -562,7 +562,7 @@ function request_method(meth, x)
         if #url_match > 0 then
           local local_params = {}
           for i, v in ipairs(url_match) do
-            -- print(x[1], ":", i, ":", v)
+            if debugging then print("PATH_CAPTURE:", x[1], ":", i, ":", v) end
             params["path_capture_" .. i] = unescape(v)
           end
           -- print("PARAMS", params.test)
@@ -636,8 +636,8 @@ end
 function routing(rules, mreq)
   local page, request, response = begin_handling(mreq)
   --XX local parent_env = getfenv(2)
-  print = rules.print
-  read = rules.read
+  -- print = rules.print
+  -- read = rules.read
   --XX print, read = parent_env.print, parent_env.read
   if debugging then
     for i, r in ipairs(rules) do print(i, r(nil, nil)) end
@@ -810,12 +810,17 @@ end
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 
-function include(fname, page, req, resp, params)
+function get_src_content(fname)
   local argv=parent_env['arg']
   local fh = assert (io.open("./" .. argv[0] .. ".d/" .. fname))
   local src = fh:read("*a")
   fh:close()
   if src:sub(1,3) == BOM then src = src:sub(4) end
+  return src
+end
+
+function include(fname, page, req, resp, params)
+  local src = get_src_content(fname)
   local func = compile(src, fname)
   if func then
     return func()(page, req, resp, params)
@@ -828,6 +833,12 @@ function render(fname, page, req, resp, params)
   page:write(include(fname, page, req, resp, params))
   page.rendered = true
   -- page:write(translate(src, fname))
+end
+
+function render_verbatim(fname, page, req, resp, params)
+  local src = get_src_content(fname)
+  page:write(src)
+  page.rendered = true
 end
 
 
