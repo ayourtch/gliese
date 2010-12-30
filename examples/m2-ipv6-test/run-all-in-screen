@@ -1,0 +1,9 @@
+#!/bin/bash
+NAME=mongrel2-dev
+cat <<"END" >/tmp/screenrc
+screen -t mongrel2 0 ./run-m2
+screen -t redis 1 ./run-redis
+screen -t lua 2 ./run-lua
+END
+
+screen -S ${NAME} -c /tmp/screenrc
