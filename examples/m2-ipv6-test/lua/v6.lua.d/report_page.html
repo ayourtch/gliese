@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd"> 
+<html lang="en"> 
+    <head> 
+        <title>IPv6 test report: <%= page.ref %></title> 
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+        <meta name="author" content="Andrew Yourtchenko"> 
+        <meta name="description" content="Measure how ready your audience is for IPv6"> 
+        <link rel="stylesheet" href="css/demo.css" type="text/css" media="screen" charset="utf-8"> 
+        <link rel="stylesheet" href="css/demo-print.css" type="text/css" media="print" charset="utf-8"> 
+        <script src="js/raphael.js" type="text/javascript" charset="utf-8"></script> 
+        <script src="js/g-raphael.js" type="text/javascript" charset="utf-8"></script> 
+        <script src="js/g-pie.js" type="text/javascript" charset="utf-8"></script> 
+        <script type="text/javascript" charset="utf-8"> 
+            window.onload = function () {
+                var r = Raphael("holder");
+                r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+                
+                r.g.text(320, 100, "IPv6 impact analysis for <%= page.ref %> ").attr({"font-size": 20});
+                
+                var pie = r.g.piechart(420, 240, 100, [ <%= page.data[1] %>,<%= page.data[2] %>,<%= page.data[3] %>,<%= page.data[4] %>, <%= page.data[5] %>, 0.000001], {legend: ["%%.%%%% - Lost if AAAA+A, DNS4", "%%.%%% - Lost if AAAA only, DNS4", "%%.%%%% - Lost if AAAA only, DNS4, big reply", "%%.%%%% - Lost if AAAA only, DNS6", "%%.%%%% - Works!" ], legendpos: "west", href: ["", ""]});
+
+            };
+        </script> 
+    </head> 
+    <body class="raphael"> 
+        <div id="holder"></div> 
+	<p></p>
+	<div id="holder62">
+        <p> 
+	   The tests are sequential: A-only (start); A+AAAA, DNS server on IPv4; AAAA only, DNS server on IPv4; AAAA only, reply >1500 bytes, DNS server on IPv4; AAAA only, DNS server on IPv6 (thanks to Steve Bertrand for the record in the DNS)
+        </p> 
+        <p> 
+        <b>The Opera browsers are completely excluded from the test results for the invocations that use "display:none" style - due to Opera not requesting 
+        the image which has the "display:none" style.</b>
+        Thanks to David Croft for noting that.
+        Please use the "width:0px;height:0px" style to get the info about the Opera browsers too.
+        </p> 
+        <p> 
+	<b>Important:</b> If your referer can change (e.g. site accessible via "example.org" and "www.example.org", or something is passed via parameters in GET request, then to avoid the dispersion of the results, please supply the referer explicitly via "r=" parameter.
+        </p> 
+        <p> 
+	1 May 2010: I reset the database due to activation of the DNS6-AAAA test.
+	</p>
+        <p> 
+            The diagram and pretty much all of the CSS are borrowed from a demo of <a href="http://g.raphaeljs.com/">g·Raphaël</a> JavaScript library.
+        </p> 
+	</div>
+    </body> 
+</html> 
+

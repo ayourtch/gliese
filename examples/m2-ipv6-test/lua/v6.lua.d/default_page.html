@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <title>Test V6</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="css/demo.css" type="text/css" media="screen" charset="utf-8"> 
+</head>
+<body>
+
+<div id="holder62">
+<h1>Test V6</h1>
+
+<p>
+Hello. 
+</p>
+<p>
+If you are wondering what would happen if you "switched on IPv6" on your server, this may help you get a feel of it.
+</p>
+
+<p>Add this tag: 
+<strike title="Opera browser does not request the images with the 'display:none' style. Thanks to David Croft for noting this.">&lt;img src="http://testv6.stdio.be/v6.lua/counter.gif" style="display:none"&gt;</strike>
+<b>&lt;img src="http://testv6.stdio.be/v6.lua/counter.gif" style="width:0px;height:0px"&gt; </b>
+to the bottom of your page to monitor the v6-readiness of your audience.  We track aggregates by referer.
+</p>
+<p>
+Therefore, if your referer is not constant (e.g. you put it on the page that accepts parameters in a GET request), then the reporting will be scattered (remember - we track by referer, in fact by referer sha1 hash). Same thing if your site is accessible via multiple domains. To fix that, you can supply "?r=your.fixed.referer.value" query string in the img tag URL - and then use that referral value when retrieving reports. 
+</p>
+<p>
+Example: 
+<b>&lt;img src="http://testv6.stdio.be/v6.lua/counter.gif?r=http://www.stdio.be/" style="width:0px;height:0px"&gt;</b>
+</p>
+<p>
+How: The browser requests the image. The testv6.stdio.be has only an A-record and sits on IPv4-only DNS. So, it is no different from any other IPv4-only website on the Internet. We do not serve an image right away, but instead send a redirect (302) to a domain that has both A and AAAA (hence, it models the "IPv6-enabled" domain. 
+</p>
+<p>
+When the client comes back - we send them to the domain that has only AAAA record - so, it's IPv6-only. If that succeeds, we try to also send them a bigger chunk of data in the reply - to test for possible MTU breakages. Finally, we send them to the domain that AAAA-only, and is served via DNS server that is only IPv6-reachable. 
+</p>
+<p>
+Frequently, some clients will be "lost" at one of the stages of this 302-marathon. This is what you will see in the report.
+From the practical standpoint of enabling the IPv6 on the website, most important is to keep an eye of how many clients will be lost with "A+AAAA". 
+</p>
+<p>
+When there are some hits, you can go and view the report.
+</p>
+
+<div id="formdiv">
+<form method="get" action="http://testv6.stdio.be/v6.lua/report">
+Referer to report on: <input type="text" name="r">
+<input type="submit" value="View the report">
+</form>
+</div>
+
+<img src="http://testv6.stdio.be/v6.lua/counter.gif" style="width:0px;height:0px">
+<p>
+To get an impression how it looks like, you can <a href="http://testv6.stdio.be/v6.lua/report?r=http://testv6.stdio.be/v6.lua/">view the report for this page</a>.
+</p>
+<p></p>
+<hr size="1" noshade="">
+<p>
+1 May 2010: Added the DNS6 AAAA record test - thanks to Steve Bertrand for the help! Consequently, I reset the database. 
+</p>
+<hr size="1" noshade="">
+<p>
+Note, that this test is not indended for checking your (the viewer of this page) IPv6 connectivity. If you want to do so, go check out <a href="http://test-ipv6.com/">test-ipv6.com</a>. 
+</p>
+<hr size="1" noshade="">
+<p>
+If you want to check the health of your DNS, head to <a href="http://dnscheck.iis.se/">http://dnscheck.iis.se/</a>.
+</p>
+<hr size="1" noshade="">
+<p>
+About: This small service is built using lighttpd, redis, and Lua. It runs on a Xen VPS with 128Mb of RAM and is able to service approximately 25 requests per second. 
+This app is running on top of a Lua web microframework that I called <a href="http://github.com/ayourtch/gliese">Gliese</a>.
+If you are interested to get yourself a copy of this script, or have some feedback about this service, drop an email to ayourtch at the gmail email address.
+</p>
+</div>
+<p></p>
+
+</body>
+</html>
