@@ -29,6 +29,7 @@ cd ..
 
 # mongrel2
 git clone https://github.com/zedshaw/mongrel2
+cd mongrel2/
 make
 sudo make install
 cd ..
