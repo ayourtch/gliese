@@ -3,7 +3,7 @@
 # Supermagical script to install all the needed dependencies
 # for mongrel2 and all the needed lua libs
 
-sudo apt-get install -y build-essential git-core lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
+sudo apt-get install -y build-essential git-core fossil lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
 
 mkdir dist
 cd dist
@@ -25,14 +25,6 @@ tar xzvf redis-2.0.4.tar.gz
 cd redis-2.0.4/
 make
 sudo make install
-cd ..
-
-# fossil
-FOSSIL=fossil-src-20111213135356
-wget http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
-tar xzvf ${FOSSIL}.tar.gz
-cd ${FOSSIL}
-make && sudo cp fossil /usr/local/bin/
 cd ..
 
 # mongrel2
