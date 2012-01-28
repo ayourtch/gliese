@@ -28,7 +28,7 @@ sudo make install
 cd ..
 
 # fossil
-FOSSIL=fossil-src-20101221135605
+FOSSIL=fossil-src-20111213135356
 wget http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
 tar xzvf ${FOSSIL}.tar.gz
 cd ${FOSSIL}
