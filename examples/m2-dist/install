@@ -3,7 +3,7 @@
 # Supermagical script to install all the needed dependencies
 # for mongrel2 and all the needed lua libs
 
-sudo apt-get install build-essential git-core lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
+sudo apt-get install -y build-essential git-core lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
 
 mkdir dist
 cd dist
