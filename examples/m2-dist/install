@@ -9,9 +9,10 @@ mkdir dist
 cd dist
 
 # zeromq
-wget http://download.zeromq.org/zeromq-2.0.10.tar.gz
-tar xzvf zeromq-2.0.10.tar.gz
-cd zeromq-2.0.10/
+ZEROMQ=zeromq-2.1.11
+wget http://download.zeromq.org/${ZEROMQ}.tar.gz
+tar xzvf ${ZEROMQ}.tar.gz
+cd ${ZEROMQ}/
 ./configure
 make
 sudo make install
