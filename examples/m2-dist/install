@@ -3,15 +3,16 @@
 # Supermagical script to install all the needed dependencies
 # for mongrel2 and all the needed lua libs
 
-sudo apt-get install build-essential git-core lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
+sudo apt-get install -y build-essential git-core lua5.1 liblua5.1-0-dev uuid-dev liblua5.1-lpeg-dev liblua5.1-socket-dev libsqlite3-dev sqlite3 libssl-dev
 
 mkdir dist
 cd dist
 
 # zeromq
-wget http://download.zeromq.org/zeromq-2.0.10.tar.gz
-tar xzvf zeromq-2.0.10.tar.gz
-cd zeromq-2.0.10/
+ZEROMQ=zeromq-2.1.11
+wget http://download.zeromq.org/${ZEROMQ}.tar.gz
+tar xzvf ${ZEROMQ}.tar.gz
+cd ${ZEROMQ}/
 ./configure
 make
 sudo make install
@@ -26,22 +27,9 @@ make
 sudo make install
 cd ..
 
-# fossil
-FOSSIL=fossil-src-20101221135605
-wget http://www.fossil-scm.org/download/${FOSSIL}.tar.gz
-tar xzvf ${FOSSIL}.tar.gz
-cd ${FOSSIL}
-make && sudo cp fossil /usr/local/bin/
-cd ..
-
 # mongrel2
-fossil clone http://mongrel2.org:44445 mongrel2.fossil
-rm -rf mongrel2-git
-mkdir mongrel2-git
-cd mongrel2-git
-git init
-fossil export --git ../mongrel2.fossil | git fast-import
-git checkout trunk
+git clone https://github.com/zedshaw/mongrel2
+cd mongrel2/
 make
 sudo make install
 cd ..
